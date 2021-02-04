@@ -1,4 +1,4 @@
-package com.assignment;
+package com.assignment.part1;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -19,7 +19,7 @@ class Ball {
         this.canvas = c;
         this.color = color;
 
-        if(Math.random()<0.5){
+        if(Math.random() < 0.5){
             x = new Random().nextInt(this.canvas.getWidth());
             y = 0;
         }else{
@@ -65,6 +65,8 @@ class Ball {
             y = this.canvas.getHeight() - DIAMETER;
             dy = -dy;
         }
+
+        this.canvas.revalidate();
         this.canvas.repaint();
     }
 

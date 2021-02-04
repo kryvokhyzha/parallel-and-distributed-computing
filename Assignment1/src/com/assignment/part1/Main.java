@@ -1,4 +1,4 @@
-package com.assignment;
+package com.assignment.part1;
 
 import javax.swing.*;
 

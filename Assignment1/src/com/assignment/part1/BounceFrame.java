@@ -1,4 +1,4 @@
-package com.assignment;
+package com.assignment.part1;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,16 +9,24 @@ public class BounceFrame extends JFrame {
     private final ObjectCanvas canvas;
     private static final int N_BLUE_BALLS = 1000;
     private static final int N_RED_BALLS = 1;
+    private static final int N_JOIN_EXPERIMENT = 10;
     public static final int WIDTH = 850;
     public static final int HEIGHT = 750;
 
     public BounceFrame() {
+
         this.setSize(WIDTH, HEIGHT);
         this.setTitle("Bounce program");
         this.canvas = new ObjectCanvas();
 
-        Pool p = new Pool(canvas, Color.CYAN);
-        canvas.add(p);
+        Pool p1 = new Pool(canvas, Color.CYAN, 0 ,0);
+        canvas.add(p1);
+        Pool p2 = new Pool(canvas, Color.CYAN, WIDTH ,0);
+        canvas.add(p2);
+        Pool p3 = new Pool(canvas, Color.CYAN, 0, HEIGHT-100);
+        canvas.add(p3);
+        Pool p4 = new Pool(canvas, Color.CYAN, WIDTH ,HEIGHT-100);
+        canvas.add(p4);
 
         System.out.println(new StringBuilder().append("In Frame Thread name = ").append(Thread.currentThread().getName()).toString());
 
@@ -34,6 +42,7 @@ public class BounceFrame extends JFrame {
         JButton buttonAddBlueBall = new JButton("Add blue ball");
         JButton buttonAddRedBall = new JButton("Add red ball");
         JButton buttonPriorityExperiment = new JButton("Red/Blue priority experiment");
+        JButton buttonJoinExperiment = new JButton("Join experiment");
         JButton buttonStop = new JButton("Stop");
 
         JLabel labelScore = new JLabel("Score: " + Score.getScore());
@@ -77,6 +86,19 @@ public class BounceFrame extends JFrame {
             }
         });
 
+        buttonJoinExperiment.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Runnable updatePanel = new Runnable() {
+                        public void run() {
+                            createJoinExperiment();
+                        }
+                    };
+                Thread t = new Thread(updatePanel);
+                t.start();
+            }
+        });
+
         buttonStop.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -89,6 +111,7 @@ public class BounceFrame extends JFrame {
         buttonPanel.add(buttonAddBlueBall);
         buttonPanel.add(buttonAddRedBall);
         buttonPanel.add(buttonPriorityExperiment);
+        buttonPanel.add(buttonJoinExperiment);
         buttonPanel.add(buttonStop);
 
         labelPanel.add(labelScore);
@@ -104,6 +127,7 @@ public class BounceFrame extends JFrame {
         BallThread thread = new BallThread(b);
         thread.setPriority(priority);
         thread.start();
+
         System.out.println("Thread name = " + thread.getName());
     }
 
@@ -114,18 +138,52 @@ public class BounceFrame extends JFrame {
         BallThread thread = new BallThread(b);
         thread.setPriority(priority);
         thread.start();
+
+        System.out.println("Thread name = " + thread.getName());
+    }
+
+    private void createBall(Color color, int priority, int x, int y, int TIME) {
+        Ball b = new Ball(canvas, color, x, y);
+        canvas.add(b);
+
+        BallThread thread = new BallThread(b);
+        thread.setTIME(TIME);
+        thread.setPriority(priority);
+        thread.start();
+
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         System.out.println("Thread name = " + thread.getName());
     }
 
     private void createPriorityExperiment() {
         Color color = Color.BLUE;
         for(int i = 0; i < N_BLUE_BALLS; i++){
-            createBall(color, Thread.MIN_PRIORITY, WIDTH / 2, HEIGHT / 2);
+            createBall(color, 1, WIDTH / 2, HEIGHT / 2);
         }
 
         color = Color.RED;
         for(int i = 0; i < N_RED_BALLS; i++){
-            createBall(color, Thread.MAX_PRIORITY, WIDTH / 2, HEIGHT / 2);
+            createBall(color, 10, WIDTH / 2, HEIGHT / 2);
+        }
+    }
+
+    private void createJoinExperiment() {
+        int TIME = 1000;
+
+        for (int i = 0; i < N_JOIN_EXPERIMENT; i++) {
+            Color color;
+            if (i % 2 == 0) {
+                color = Color.BLUE;
+            } else {
+                color = Color.RED;
+            }
+            createBall(color, Thread.MIN_PRIORITY, WIDTH / 2, HEIGHT / 2, TIME);
+
         }
     }
 }
