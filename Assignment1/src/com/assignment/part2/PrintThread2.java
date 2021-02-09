@@ -3,7 +3,7 @@ package com.assignment.part2;
 public class PrintThread2 extends Thread {
     private String text = "";
     private final Control control;
-    private final int n_max = 50;
+    private final int n_max = 500;
 
     public PrintThread2(String text, Control control) {
         this.text = text;

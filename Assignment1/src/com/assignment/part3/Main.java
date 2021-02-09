@@ -6,67 +6,67 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
         Counter counter1 = new Counter();
 
-        Runnable part51 = () -> {run51(counter1);};
-        Thread part51Thread = new Thread(part51);
+        Runnable part61 = () -> {run61(counter1);};
+        Thread part61Thread = new Thread(part61);
 
-        part51Thread.start();
-        part51Thread.join();
+        part61Thread.start();
+        part61Thread.join();
 
-        System.out.println("Counter for part 5.1 = " + counter1.getCount());
+        System.out.println("Counter for part 6.1 = " + counter1.getCount());
 
 
         Counter counter2 = new Counter();
 
-        Runnable part52 = () -> {
+        Runnable part62 = () -> {
             try {
-                run52(counter2);
+                run62(counter2);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         };
-        Thread part52Thread = new Thread(part52);
+        Thread part62Thread = new Thread(part62);
 
-        part52Thread.start();
-        part52Thread.join();
+        part62Thread.start();
+        part62Thread.join();
 
-        System.out.println("Counter for part 5.2 = " + counter2.getCount());
+        System.out.println("Counter for part 6.2 = " + counter2.getCount());
 
 
         Counter counter3 = new Counter();
 
-        Runnable part53 = () -> {
+        Runnable part63 = () -> {
             try {
-                run53(counter3);
+                run63(counter3);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         };
-        Thread part53Thread = new Thread(part53);
+        Thread part63Thread = new Thread(part63);
 
-        part53Thread.start();
-        part53Thread.join();
+        part63Thread.start();
+        part63Thread.join();
 
-        System.out.println("Counter for part 5.3 = " + counter3.getCount());
+        System.out.println("Counter for part 6.3 = " + counter3.getCount());
 
 
         Counter counter4 = new Counter();
 
-        Runnable part54 = () -> {
+        Runnable part64 = () -> {
             try {
-                run54(counter4);
+                run64(counter4);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         };
-        Thread part54Thread = new Thread(part54);
+        Thread part64Thread = new Thread(part64);
 
-        part54Thread.start();
-        part54Thread.join();
+        part64Thread.start();
+        part64Thread.join();
 
-        System.out.println("Counter for part 5.4 = " + counter4.getCount());
+        System.out.println("Counter for part 6.4 = " + counter4.getCount());
     }
 
-    public static void run51(Counter counter) {
+    public static void run61(Counter counter) {
         int n_times = 1_000_000;
 
         Runnable task1 = () -> {for(int i = 0; i < n_times; i++) counter.incrementUnsynchronized();};
@@ -79,7 +79,7 @@ public class Main {
         taskThread2.start();
     }
 
-    public static void run52(Counter counter) throws InterruptedException {
+    public static void run62(Counter counter) throws InterruptedException {
         int n_times = 1_000_000;
 
         Runnable task1 = () -> {for(int i = 0; i < n_times; i++) counter.incrementSynchronizedMethod();};
@@ -95,7 +95,7 @@ public class Main {
         taskThread2.join();
     }
 
-    public static void run53(Counter counter) throws InterruptedException {
+    public static void run63(Counter counter) throws InterruptedException {
         int n_times = 1_000_000;
 
         Runnable task1 = () -> {for(int i = 0; i < n_times; i++) counter.incrementSynchronizedBlock();};
@@ -111,7 +111,7 @@ public class Main {
         taskThread2.join();
     }
 
-    public static void run54(Counter counter) throws InterruptedException {
+    public static void run64(Counter counter) throws InterruptedException {
         int n_times = 1_000_000;
 
         ReentrantLock lock = new ReentrantLock();

@@ -2,7 +2,7 @@ package com.assignment.part2;
 
 public class PrintThread1 implements Runnable {
     private String text = "";
-    private final int n_max = 50;
+    private final int n_max = 500;
 
     public PrintThread1(String text) {
         this.text = text;
