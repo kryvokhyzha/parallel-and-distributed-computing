@@ -1,6 +1,5 @@
 package com.assignment;
 
-import com.assignment.basic.BasicAlgorithm;
 import com.assignment.striped.StripedAlgorithm;
 
 public class Main {
@@ -14,10 +13,10 @@ public class Main {
     A.generateRandomMatrix();
     B.generateRandomMatrix();
 
-    // A.matrix = new double[][]{{1, 1, 1}, {2, 2, 2}, {3, 3, 3}};
+    // A.matrix = new double[][]{{1.1, 1, 1}, {2, 2.1, 2}, {3, 3, 3}};
     // B.matrix = new double[][]{{1, 1, 1}, {2, 5, 2}, {3, 3, 3}};
 
-    BasicAlgorithm ba = new BasicAlgorithm(A, B);
+    // BasicAlgorithm ba = new BasicAlgorithm(A, B);
     StripedAlgorithm sa = new StripedAlgorithm(A, B);
 
     long currTime = System.nanoTime();
