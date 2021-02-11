@@ -19,7 +19,6 @@ public class StripedAlgorithmThread extends Thread {
     value = 0;
     for (int i = 0; i < size; i++) {
       value += row[i] * column[i];
-      ;
     }
     // System.out.println(Thread.currentThread().getName());
   }
