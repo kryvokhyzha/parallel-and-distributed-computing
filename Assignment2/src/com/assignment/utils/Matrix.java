@@ -1,4 +1,4 @@
-package com.assignment;
+package com.assignment.utils;
 
 import java.util.Arrays;
 
@@ -27,7 +27,7 @@ public class Matrix {
   }
 
   public double[] getColumn(int index) {
-    return Arrays.stream(matrix).mapToDouble(ints -> ints[index]).toArray();
+    return Arrays.stream(matrix).mapToDouble(doubles -> doubles[index]).toArray();
   }
 
   public int getSizeAxis0() {

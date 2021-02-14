@@ -1,7 +1,7 @@
 package com.assignment.basic;
 
 import com.assignment.Algorithm;
-import com.assignment.Matrix;
+import com.assignment.utils.Matrix;
 
 public class BasicAlgorithm implements Algorithm {
   Matrix A;
