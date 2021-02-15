@@ -1,6 +1,7 @@
 package com.assignment;
 
 import com.assignment.basic.BasicAlgorithm;
+import com.assignment.fox.FoxAlgorithm;
 import com.assignment.striped.StripedAlgorithm;
 import com.assignment.utils.Matrix;
 import java.util.HashMap;
@@ -28,10 +29,11 @@ public class Main {
     // A.matrix = new double[][] {{1.1, 1, 1}, {2, 2.1, 2}, {3, 3, 3}};
     // B.matrix = new double[][] {{1, 1, 1}, {2, 5, 2}, {3, 3, 3}};
 
-    int nThread = sizeAxis0;
+    int nThread = Runtime.getRuntime().availableProcessors(); // sizeAxis0
 
     BasicAlgorithm ba = new BasicAlgorithm(A, B);
     StripedAlgorithm sa = new StripedAlgorithm(A, B, nThread);
+    FoxAlgorithm fa = new FoxAlgorithm(A, B, nThread);
 
     long currTime = System.nanoTime();
     Matrix C = ba.multiply();
@@ -48,16 +50,26 @@ public class Main {
     if (printMatrices) C.print();
 
     System.out.println("Time for Striped Algorithm: " + currTime / 1_000_000);
+
+    currTime = System.nanoTime();
+    C = fa.multiply();
+    currTime = System.nanoTime() - currTime;
+
+    if (printMatrices) C.print();
+
+    System.out.println("Time for Fox Algorithm: " + currTime / 1_000_000);
     System.out.println("\n");
   }
 
   public static void threadNExperiment() {
     int sizeAxis0 = 1000;
     int sizeAxis1 = 1000;
-    int nExperiments = 5;
+    int nExperiments = 3;
 
-    int[] threadsN = new int[] {5, 10, 20, 50, 100, 500, 1000};
-    Map<Integer, Long> timeResult = new HashMap<>();
+    int[] threadsNStriped = new int[] {5, 10, 50, 100, 500, 1000};
+    int[] threadsNFox = new int[] {4, 5, 10, 25, 50, 75};
+    Map<Integer, Long> timeResultStriped = new HashMap<>();
+    Map<Integer, Long> timeResultFox = new HashMap<>();
 
     Matrix A = new Matrix(sizeAxis0, sizeAxis1);
     Matrix B = new Matrix(sizeAxis0, sizeAxis1);
@@ -65,7 +77,7 @@ public class Main {
     A.generateRandomMatrix();
     B.generateRandomMatrix();
 
-    for (int nThread : threadsN) {
+    for (int nThread : threadsNStriped) {
       StripedAlgorithm sa = new StripedAlgorithm(A, B, nThread);
 
       long acc = 0;
@@ -76,35 +88,71 @@ public class Main {
       }
       acc /= nExperiments;
 
-      timeResult.put(nThread, acc / 1_000_000);
+      timeResultStriped.put(nThread, acc / 1_000_000);
     }
 
-    List<Integer> keys = timeResult.keySet().stream().sorted().collect(Collectors.toList());
+    for (int nThread : threadsNFox) {
+      FoxAlgorithm fa = new FoxAlgorithm(A, B, nThread);
 
-    System.out.println("**Number of threads experiment**");
+      long acc = 0;
+      for (int i = 0; i < nExperiments; i++) {
+        long currTime = System.nanoTime();
+        Matrix C = fa.multiply();
+        acc += System.nanoTime() - currTime;
+      }
+      acc /= nExperiments;
+
+      timeResultFox.put(nThread, acc / 1_000_000);
+    }
+
+    List<Integer> keysStriped =
+        timeResultStriped.keySet().stream().sorted().collect(Collectors.toList());
+
+    System.out.println("**Number of threads experiment (Striped)**");
 
     System.out.printf("%30s", "Number of thread:");
-    for (int key : keys) {
+    for (int key : keysStriped) {
       System.out.printf("%10d", key);
       System.out.print(" ");
     }
 
     System.out.println();
 
-    System.out.printf("%30s", "Time for Striped:");
-    for (int key : keys) {
-      System.out.printf("%10d", timeResult.get(key));
+    System.out.printf("%30s", "Time:");
+    for (int key : keysStriped) {
+      System.out.printf("%10d", timeResultStriped.get(key));
+      System.out.print(" ");
+    }
+    System.out.println("\n");
+
+    List<Integer> keysFox = timeResultFox.keySet().stream().sorted().collect(Collectors.toList());
+
+    System.out.println("**Number of threads experiment (Fox)**");
+
+    System.out.printf("%30s", "Number of thread:");
+    for (int key : keysFox) {
+      System.out.printf("%10d", key);
+      System.out.print(" ");
+    }
+
+    System.out.println();
+
+    System.out.printf("%30s", "Time:");
+    for (int key : keysFox) {
+      System.out.printf("%10d", timeResultFox.get(key));
       System.out.print(" ");
     }
     System.out.println("\n");
   }
 
   public static void sizeMatrixExperiment() {
-    int nThread = 100;
-    int nExperiments = 5;
+    int nThread = Runtime.getRuntime().availableProcessors();
+    ;
+    int nExperiments = 3;
 
-    int[] sizesArray = new int[] {100, 500, 1000, 1500, 2000};
-    Map<Integer, Long> timeResult = new HashMap<>();
+    int[] sizesArray = new int[] {10, 100, 500, 1000, 1500};
+    Map<Integer, Long> timeResultStriped = new HashMap<>();
+    Map<Integer, Long> timeResultFox = new HashMap<>();
 
     for (int size : sizesArray) {
       Matrix A = new Matrix(size, size);
@@ -123,10 +171,22 @@ public class Main {
       }
       acc /= nExperiments;
 
-      timeResult.put(size, acc / 1_000_000);
+      timeResultStriped.put(size, acc / 1_000_000);
+
+      FoxAlgorithm fa = new FoxAlgorithm(A, B, nThread);
+
+      acc = 0;
+      for (int i = 0; i < nExperiments; i++) {
+        long currTime = System.nanoTime();
+        Matrix C = fa.multiply();
+        acc += System.nanoTime() - currTime;
+      }
+      acc /= nExperiments;
+
+      timeResultFox.put(size, acc / 1_000_000);
     }
 
-    List<Integer> keys = timeResult.keySet().stream().sorted().collect(Collectors.toList());
+    List<Integer> keys = timeResultStriped.keySet().stream().sorted().collect(Collectors.toList());
 
     System.out.println("**Size of matrix experiment**");
 
@@ -140,9 +200,18 @@ public class Main {
 
     System.out.printf("%30s", "Time for Striped:");
     for (int key : keys) {
-      System.out.printf("%10d", timeResult.get(key));
+      System.out.printf("%10d", timeResultStriped.get(key));
       System.out.print(" ");
     }
+
+    System.out.println();
+
+    System.out.printf("%30s", "Time for Striped:");
+    for (int key : keys) {
+      System.out.printf("%10d", timeResultFox.get(key));
+      System.out.print(" ");
+    }
+
     System.out.println("\n");
   }
 }

@@ -58,6 +58,8 @@ public class StripedAlgorithm implements Algorithm {
 
     executor.shutdown();
 
+    B.transpose();
+
     return C;
   }
 
