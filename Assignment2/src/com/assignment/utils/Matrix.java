@@ -22,6 +22,16 @@ public class Matrix {
     }
   }
 
+  public void transpose() {
+    double[][] newMatrix = new double[this.getSizeAxis1()][this.getSizeAxis0()];
+    for (int i = 0; i < matrix[0].length; i++) {
+      for (int j = 0; j < matrix.length; j++) {
+        newMatrix[i][j] = this.matrix[j][i];
+      }
+    }
+    this.matrix = newMatrix;
+  }
+
   public double[] getRow(int index) {
     return this.matrix[index];
   }
