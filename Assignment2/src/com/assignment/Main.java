@@ -147,7 +147,6 @@ public class Main {
 
   public static void sizeMatrixExperiment() {
     int nThread = Runtime.getRuntime().availableProcessors();
-    ;
     int nExperiments = 3;
 
     int[] sizesArray = new int[] {10, 100, 500, 1000, 1500};
@@ -206,7 +205,7 @@ public class Main {
 
     System.out.println();
 
-    System.out.printf("%30s", "Time for Striped:");
+    System.out.printf("%30s", "Time for Fox:");
     for (int key : keys) {
       System.out.printf("%10d", timeResultFox.get(key));
       System.out.print(" ");
