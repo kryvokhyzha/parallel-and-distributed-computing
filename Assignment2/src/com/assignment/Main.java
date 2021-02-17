@@ -11,14 +11,14 @@ import java.util.stream.Collectors;
 
 public class Main {
   public static void main(String[] args) {
-    // simpleRun(false);
+    simpleRun(false);
     threadNExperiment();
     sizeMatrixExperiment();
   }
 
   public static void simpleRun(boolean printMatrices) {
-    int sizeAxis0 = 2000;
-    int sizeAxis1 = 2000;
+    int sizeAxis0 = 1000;
+    int sizeAxis1 = 1000;
 
     Matrix A = new Matrix(sizeAxis0, sizeAxis1);
     Matrix B = new Matrix(sizeAxis0, sizeAxis1);
