@@ -1,9 +1,9 @@
 package com.assignment.task1;
 
 public class TransferThread extends Thread {
-  private Bank bank;
-  private int fromAccount;
-  private int maxAmount;
+  private final Bank bank;
+  private final int fromAccount;
+  private final int maxAmount;
   private static final int REPS = 1000;
 
   public TransferThread(Bank b, int from, int max) {
@@ -22,7 +22,7 @@ public class TransferThread extends Thread {
           Thread.sleep(1);
         }
       }
-    } catch (InterruptedException e) {
+    } catch (InterruptedException ignored) {
     }
   }
 }
