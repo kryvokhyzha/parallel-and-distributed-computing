@@ -1,7 +1,6 @@
 package com.assignment.task3;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 public class Main {
   public static void main(String[] args) throws InterruptedException {
@@ -25,15 +24,15 @@ public class Main {
                 .start();
             (new Thread(
                     new Teacher(
-                        "Assistant 1", Collections.singletonList("ІС-71"), nWeeks, journal)))
+                        "Assistant 1", Arrays.asList("ІС-71", "ІС-72", "ІС-73"), nWeeks, journal)))
                 .start();
             (new Thread(
                     new Teacher(
-                        "Assistant 2", Collections.singletonList("ІС-72"), nWeeks, journal)))
+                        "Assistant 2", Arrays.asList("ІС-71", "ІС-72", "ІС-73"), nWeeks, journal)))
                 .start();
             (new Thread(
                     new Teacher(
-                        "Assistant 3", Collections.singletonList("ІС-73"), nWeeks, journal)))
+                        "Assistant 3", Arrays.asList("ІС-71", "ІС-72", "ІС-73"), nWeeks, journal)))
                 .start();
           }
         };

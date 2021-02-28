@@ -23,12 +23,6 @@ public class Teacher implements Runnable {
           Double mark = (double) (Math.round(100 * Math.random() * 100)) / 100;
           journal.addMark(groupName, studentName, mark + " (" + this.teacherName + ")");
         }
-
-        try {
-          Thread.sleep(7);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
       }
     }
   }
