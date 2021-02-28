@@ -17,7 +17,7 @@ public class Journal {
   }
 
   public void addMark(String groupName, Integer studentName, String mark) {
-    synchronized (this.groups.get(groupName)) {
+    synchronized (this.groups.get(groupName).groupList.get(studentName)) {
       this.groups.get(groupName).groupList.get(studentName).add(mark);
     }
   }
