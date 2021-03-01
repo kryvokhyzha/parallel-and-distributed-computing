@@ -5,17 +5,17 @@ import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveTask;
 
 public class ForkJoinWordCount extends RecursiveTask<HashMap<String, Integer>> {
-  private final String[] lines;
+  private final List<String> words;
   private final HashMap<String, Integer> wordCounts = new HashMap<>();
-  private static final int THRESHOLD = 1;
+  private static final int THRESHOLD = 20000;
 
-  public ForkJoinWordCount(String[] lines) {
-    this.lines = lines;
+  public ForkJoinWordCount(List<String> words) {
+    this.words = words;
   }
 
   @Override
   protected HashMap<String, Integer> compute() {
-    if (this.lines.length > THRESHOLD) {
+    if (this.words.size() > THRESHOLD) {
       HashMap<String, Integer> tempMap = new HashMap<>();
       ForkJoinTask.invokeAll(createSubtask()).stream()
           .map(ForkJoinTask::join)
@@ -23,23 +23,20 @@ public class ForkJoinWordCount extends RecursiveTask<HashMap<String, Integer>> {
           .forEach(entry -> tempMap.putIfAbsent(entry.getKey(), entry.getValue()));
       return tempMap;
     } else {
-      return processing(lines);
+      return processing(words);
     }
   }
 
   private Collection<ForkJoinWordCount> createSubtask() {
     List<ForkJoinWordCount> dividedTasks = new ArrayList<>();
-    dividedTasks.add(new ForkJoinWordCount(Arrays.copyOfRange(lines, 0, lines.length / 2)));
-    dividedTasks.add(
-        new ForkJoinWordCount(Arrays.copyOfRange(lines, lines.length / 2, lines.length)));
+    dividedTasks.add(new ForkJoinWordCount(words.subList(0, words.size() / 2)));
+    dividedTasks.add(new ForkJoinWordCount(words.subList(words.size() / 2, words.size())));
     return dividedTasks;
   }
 
-  private HashMap<String, Integer> processing(String[] lines) {
-    for (String line : lines) {
-      for (String word : TextLoader.getListOfWords(line)) {
-        this.wordCounts.putIfAbsent(word, word.length());
-      }
+  private HashMap<String, Integer> processing(List<String> words) {
+    for (String word : words) {
+      this.wordCounts.putIfAbsent(word, word.length());
     }
     return this.wordCounts;
   }
