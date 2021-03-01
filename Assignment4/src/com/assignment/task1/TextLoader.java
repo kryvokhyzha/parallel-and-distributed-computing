@@ -12,12 +12,12 @@ public class TextLoader {
     return Arrays.asList(text.trim().split("(\\s|\\p{Punct})+"));
   }
 
-  public static String[] getLinesFromFile(String fileName) throws IOException {
+  public static List<String> getLinesFromFile(String fileName) throws IOException {
     String[] lineBylineResult;
     try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
       lineBylineResult = stream.toArray(String[]::new);
     }
-    return lineBylineResult;
+    return Arrays.asList(lineBylineResult);
   }
 
   public static List<String> getWordsFromFile(String fileName) throws IOException {
