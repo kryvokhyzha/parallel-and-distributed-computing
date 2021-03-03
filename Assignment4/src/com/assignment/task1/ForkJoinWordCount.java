@@ -16,12 +16,11 @@ public class ForkJoinWordCount extends RecursiveTask<HashMap<String, Integer>> {
   @Override
   protected HashMap<String, Integer> compute() {
     if (this.words.size() > THRESHOLD) {
-      HashMap<String, Integer> tempMap = new HashMap<>();
       ForkJoinTask.invokeAll(createSubtask()).stream()
           .map(ForkJoinTask::join)
           .flatMap(map -> map.entrySet().stream())
-          .forEach(entry -> tempMap.putIfAbsent(entry.getKey(), entry.getValue()));
-      return tempMap;
+          .forEach(entry -> this.wordCounts.putIfAbsent(entry.getKey(), entry.getValue()));
+      return this.wordCounts;
     } else {
       return processing(words);
     }

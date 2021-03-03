@@ -37,7 +37,7 @@ public class Main {
     res = SimpleWordCount.processing(words);
     long currTimeSimple = System.nanoTime() - currTime;
 
-    System.out.printf("Execution time (Simple Algorithm): %d\n", currTimeSimple);
+    System.out.printf("Execution time (Single Thread): %d\n", currTimeSimple);
 
     System.out.printf("SpeadUp = %.2f\n", (double) currTimeSimple / currTimeForkJoin);
     /*for (String w : res.keySet()) {
