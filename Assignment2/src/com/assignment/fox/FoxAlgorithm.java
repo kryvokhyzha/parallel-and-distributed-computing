@@ -19,7 +19,7 @@ public class FoxAlgorithm implements Algorithm {
     this.nThread = nThread;
   }
 
-  private int delimeter_3(int s, int p) {
+  private int findNearestDivider(int s, int p) {
     /*
     https://ru.stackoverflow.com/questions/434403/%D0%9F%D0%BE%D0%B8%D1%81%D0%BA-%D0%B1%D0%BB%D0%B8%D0%B6%D0%B0%D0%B9%D1%88%D0%B5%D0%B3%D0%BE-%D0%B4%D0%B5%D0%BB%D0%B8%D1%82%D0%B5%D0%BB%D1%8F
      */
@@ -53,7 +53,7 @@ public class FoxAlgorithm implements Algorithm {
     }
 
     this.nThread = Math.min(this.nThread, A.getSizeAxis0());
-    this.nThread = delimeter_3(this.nThread, A.getSizeAxis0());
+    this.nThread = findNearestDivider(this.nThread, A.getSizeAxis0());
     int step = A.getSizeAxis0() / this.nThread;
 
     ExecutorService exec = Executors.newFixedThreadPool(this.nThread);
