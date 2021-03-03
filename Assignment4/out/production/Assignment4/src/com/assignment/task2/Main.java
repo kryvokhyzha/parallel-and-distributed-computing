@@ -43,16 +43,16 @@ public class Main {
     if (printMatrices) C.print();
 
     System.out.println("Time for Fox Algorithm: " + currTimeFox / 1_000_000);
+    System.out.println();
     System.out.println(
         "SpeedUp (timeBasic / timeFoxForkJoin): " + (double) currTimeBasic / currTimeFox);
 
     if (sizeAxis0 == 2000) {
+      /*
+      22474 - this is average execution time for Fox algorithm (from assignment 2)
+       */
       System.out.println(
-          "SpeedUp (timeFox / timeFoxForkJoin): " + (double) 20474 / (currTimeFox / 1_000_000));
+          "SpeedUp (timeFox / timeFoxForkJoin): " + (double) 22474 / (currTimeFox / 1_000_000));
     }
-
-    System.out.println("\n");
-
-    //
   }
 }
