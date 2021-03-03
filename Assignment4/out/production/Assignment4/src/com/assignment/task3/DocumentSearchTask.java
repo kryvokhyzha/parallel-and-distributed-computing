@@ -1,19 +1,22 @@
 package com.assignment.task3;
 
+import java.util.Set;
 import java.util.concurrent.RecursiveTask;
 
-public class DocumentSearchTask extends RecursiveTask<Long> {
+public class DocumentSearchTask extends RecursiveTask<Set<String>> {
   private final Document document;
-  private final String searchedWord;
 
-  DocumentSearchTask(Document document, String searchedWord) {
+  DocumentSearchTask(Document document) {
     super();
     this.document = document;
-    this.searchedWord = searchedWord;
+  }
+
+  public Document getDocument() {
+    return document;
   }
 
   @Override
-  protected Long compute() {
-    return WordCounter.occurrencesCount(document, searchedWord);
+  protected Set<String> compute() {
+    return WordCounter.getAllWords(document);
   }
 }

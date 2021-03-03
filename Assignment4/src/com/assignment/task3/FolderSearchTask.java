@@ -1,36 +1,40 @@
 package com.assignment.task3;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.RecursiveTask;
 
-public class FolderSearchTask extends RecursiveTask<Long> {
+public class FolderSearchTask extends RecursiveTask<Set<String>> {
   private final Folder folder;
-  private final String searchedWord;
 
-  FolderSearchTask(Folder folder, String searchedWord) {
+  FolderSearchTask(Folder folder) {
     super();
     this.folder = folder;
-    this.searchedWord = searchedWord;
   }
 
   @Override
-  protected Long compute() {
-    long count = 0L;
-    List<RecursiveTask<Long>> forks = new LinkedList<>();
+  protected Set<String> compute() {
+    Set<String> result;
+    List<RecursiveTask<Set<String>>> forks = new LinkedList<>();
+
     for (Folder subFolder : folder.getSubFolders()) {
-      FolderSearchTask task = new FolderSearchTask(subFolder, searchedWord);
+      FolderSearchTask task = new FolderSearchTask(subFolder);
       forks.add(task);
       task.fork();
     }
     for (Document document : folder.getDocuments()) {
-      DocumentSearchTask task = new DocumentSearchTask(document, searchedWord);
+      DocumentSearchTask task = new DocumentSearchTask(document);
       forks.add(task);
       task.fork();
     }
-    for (RecursiveTask<Long> task : forks) {
-      count = count + task.join();
+
+    if (forks.size() == 0) return new HashSet<>();
+
+    result = forks.get(0).join();
+    forks.remove(0);
+    for (RecursiveTask<Set<String>> task : forks) {
+      result.retainAll(task.join());
     }
-    return count;
+
+    return result;
   }
 }
