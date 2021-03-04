@@ -19,6 +19,24 @@ public class FoxAlgorithm implements Algorithm {
     this.nThread = nThread;
   }
 
+  private int findNearestDivider(int s, int p) {
+    /*
+    https://ru.stackoverflow.com/questions/434403/%D0%9F%D0%BE%D0%B8%D1%81%D0%BA-%D0%B1%D0%BB%D0%B8%D0%B6%D0%B0%D0%B9%D1%88%D0%B5%D0%B3%D0%BE-%D0%B4%D0%B5%D0%BB%D0%B8%D1%82%D0%B5%D0%BB%D1%8F
+     */
+    int i = s;
+    while (i > 1) {
+      if (p % i == 0) break;
+      if (i >= s) {
+        i++;
+      } else {
+        i--;
+      }
+      if (i > Math.sqrt(p)) i = Math.min(s, p / s) - 1;
+    }
+
+    return i >= s ? i : i != 0 ? p / i : p;
+  }
+
   @Override
   public Matrix multiply() {
     Matrix C = new Matrix(A.getSizeAxis0(), B.getSizeAxis1());
@@ -35,7 +53,7 @@ public class FoxAlgorithm implements Algorithm {
     }
 
     this.nThread = Math.min(this.nThread, A.getSizeAxis0());
-    this.nThread += A.getSizeAxis0() % this.nThread;
+    this.nThread = findNearestDivider(this.nThread, A.getSizeAxis0());
     int step = A.getSizeAxis0() / this.nThread;
 
     ExecutorService exec = Executors.newFixedThreadPool(this.nThread);
@@ -95,9 +113,7 @@ public class FoxAlgorithm implements Algorithm {
   private Matrix copyBlock(Matrix matrix, int i, int j, int size) {
     Matrix block = new Matrix(size, size);
     for (int k = 0; k < size; k++) {
-      for (int l = 0; l < size; l++) {
-        block.matrix[k][l] = matrix.matrix[k + i][l + j];
-      }
+      System.arraycopy(matrix.matrix[k + i], j, block.matrix[k], 0, size);
     }
     return block;
   }
