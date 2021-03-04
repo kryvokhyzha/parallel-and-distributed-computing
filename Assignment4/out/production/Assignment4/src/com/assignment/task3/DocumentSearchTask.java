@@ -11,10 +11,6 @@ public class DocumentSearchTask extends RecursiveTask<Set<String>> {
     this.document = document;
   }
 
-  public Document getDocument() {
-    return document;
-  }
-
   @Override
   protected Set<String> compute() {
     return WordCounter.getAllWords(document);
