@@ -6,3 +6,8 @@ repos:
     args: [--autofix]
   - id: pretty-format-yaml
     args: [--autofix, --indent, '2']
+- repo: https://github.com/bmorcos/pre-commit-hooks-cpp
+  rev: master
+  hooks:
+  - id: clang-format
+  - id: cppcheck
