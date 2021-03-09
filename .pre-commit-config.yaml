@@ -10,5 +10,4 @@ repos:
   rev: master
   hooks:
   - id: clang-format
-  - id: cpplint
   - id: cppcheck

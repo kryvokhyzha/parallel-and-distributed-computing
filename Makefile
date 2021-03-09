@@ -1,2 +1,2 @@
 install_dep:
-	sudo apt install clang-format && pip install cpplint && sudo apt install cppcheck
+	sudo apt install clang clang-format clang-tidy uncrustify cppcheck
