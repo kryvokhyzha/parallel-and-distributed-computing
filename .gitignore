@@ -66,3 +66,6 @@ out/
 
 # CMake
 cmake-build-*/
+
+# os
+os
