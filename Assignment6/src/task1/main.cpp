@@ -16,29 +16,40 @@
 int main(int argc, char *argv[]) {
   int numtasks, taskid, numworkers, source, dest, rows,
       /* rows of matrix A sent to each worker */
-      averow, extra, offset, i, j, k, rc;
+      averow, extra, offset, i, j, k;
   double a[NRA][NCA], /* matrix A to be multiplied */
       b[NCA][NCB],    /* matrix B to be multiplied */
       c[NRA][NCB];    /* result matrix C */
-  MPI_Status status;
+
   MPI_Init(&argc, &argv);
+
+  double t1 = MPI_Wtime();
+
+  MPI_Status status;
+
   MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
   MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
+
   if (numtasks < 2) {
     printf("Need at least two MPI tasks. Quitting...\n");
-    MPI_Abort(MPI_COMM_WORLD, rc);
+    MPI_Abort(MPI_COMM_WORLD, -1);
     exit(1);
   }
+
   numworkers = numtasks - 1;
+
   if (taskid == MASTER) {
     printf("mpi_mm has started with %d tasks.\n", numtasks);
+
     for (i = 0; i < NRA; i++)
       for (j = 0; j < NCA; j++) a[i][j] = 10;
     for (i = 0; i < NCA; i++)
       for (j = 0; j < NCB; j++) b[i][j] = 10;
+
     averow = NRA / numworkers;
     extra = NRA % numworkers;
     offset = 0;
+
     for (dest = 1; dest <= numworkers; dest++) {
       rows = (dest <= extra) ? averow + 1 : averow;
       printf("Sending %d rows to task %d offset=%d\n", rows, dest, offset);
@@ -49,6 +60,7 @@ int main(int argc, char *argv[]) {
       MPI_Send(&b, NCA * NCB, MPI_DOUBLE, dest, FROM_MASTER, MPI_COMM_WORLD);
       offset = offset + rows;
     }
+
     /* Receive results from worker tasks */
     for (source = 1; source <= numworkers; source++) {
       MPI_Recv(&offset, 1, MPI_INT, source, FROM_WORKER, MPI_COMM_WORLD,
@@ -56,15 +68,18 @@ int main(int argc, char *argv[]) {
       MPI_Recv(&rows, 1, MPI_INT, source, FROM_WORKER, MPI_COMM_WORLD, &status);
       MPI_Recv(&c[offset][0], rows * NCB, MPI_DOUBLE, source, FROM_WORKER,
                MPI_COMM_WORLD, &status);
-      printf("Received results from task %d\n", taskid);
+      printf("Received results from task %d\n", source);
     }
+
     /* Print results */
     printf("****\n");
     printf("Result Matrix:\n");
+
     for (i = 0; i < NRA; i++) {
       printf("\n");
       for (j = 0; j < NCB; j++) printf("%6.2f ", c[i][j]);
     }
+
     printf("\n********\n");
     printf("Done.\n");
   }
@@ -86,5 +101,15 @@ int main(int argc, char *argv[]) {
     MPI_Send(&rows, 1, MPI_INT, MASTER, FROM_WORKER, MPI_COMM_WORLD);
     MPI_Send(&c, rows * NCB, MPI_DOUBLE, MASTER, FROM_WORKER, MPI_COMM_WORLD);
   }
+
+  t1 = MPI_Wtime() - t1;
+
+  double totalTime;
+  MPI_Reduce(&t1, &totalTime, 1, MPI_DOUBLE, MPI_MAX, MASTER, MPI_COMM_WORLD);
+
+  if (taskid == MASTER) {
+    printf("\nExecution time: %.2f\n", t1);
+  }
+
   MPI_Finalize();
 }

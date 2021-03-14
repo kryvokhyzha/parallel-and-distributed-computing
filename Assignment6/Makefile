@@ -16,8 +16,8 @@ init:
   		mkdir $(SRC_DIR); \
   	fi
 build_main:
-	mpic++ -o $(BUILD_DIR)/$(TARGET).o $(SRC_DIR)/$(TARGET).cpp
+	mpic++ -o $(BUILD_DIR)/$(TARGET).o $(SRC_DIR)/$(TASK)/$(TARGET).cpp
 run:
-	mpirun -np 2 $(BUILD_DIR)/$(TARGET).o
+	mpirun --hostfile hostfile $(BUILD_DIR)/$(TARGET).o
 build_and_run:
-	make init && make build_main && make run
+	make init && make build_main TASk=$(TASK) && make run
