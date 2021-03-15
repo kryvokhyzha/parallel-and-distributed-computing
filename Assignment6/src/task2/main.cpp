@@ -94,7 +94,8 @@ int main(int argc, char *argv[]) {
     /*printf("****\n");
     printf("Result Matrix:\n");
 
-    for (i = 0; i < NRA; i++) {
+    for (i = 0; i < NRA; i++)
+     {
       printf("\n");
       for (j = 0; j < NCB; j++) printf("%6.2f ", c[i][j]);
     }
