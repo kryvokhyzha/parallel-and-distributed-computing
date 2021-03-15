@@ -2,11 +2,11 @@
 #include <cstdlib>
 
 #include "mpi.h"
-#define NRA 500
+#define NRA 1000
 /* number of rows in matrix A */
-#define NCA 500
+#define NCA 1000
 /* number of columns in matrix A */
-#define NCB 500
+#define NCB 1000
 /* number of columns in matrix B */
 #define MASTER 0
 /* taskid of first task */
@@ -21,8 +21,6 @@ int main(int argc, char *argv[]) {
   double a[NRA][NCA]; /* matrix A to be multiplied */
   double b[NCA][NCB]; /* matrix B to be multiplied */
   double c[NRA][NCB]; /* result matrix C */
-
-  // std::vector<std::vector<double>> v {{1,2,3}};
 
   MPI_Init(&argc, &argv);
 
