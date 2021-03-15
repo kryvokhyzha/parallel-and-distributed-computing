@@ -14,16 +14,18 @@
 #define FROM_WORKER 10 /* setting a message type */
 
 double **alloc_2d(int rows, int cols) {
+  /*allocate a continuous chunk*/
   double *mem = (double *)malloc(rows * cols * sizeof(double));
   double **A = (double **)malloc(rows * sizeof(double *));
 
   A[0] = mem;
+  /*manually split it into rows*/
   for (int i = 1; i < rows; i++) A[i] = A[i - 1] + cols;
 
   return A;
 }
 
-void free_memory(double ***arr) {
+void free_memory(double **arr) {
   free(arr[0]);
   free(arr);
 }
@@ -132,9 +134,9 @@ int main(int argc, char *argv[]) {
              MPI_COMM_WORLD);
   }
 
-  free_memory(&a);
-  free_memory(&b);
-  free_memory(&c);
+  free_memory(a);
+  free_memory(b);
+  free_memory(c);
 
   MPI_Finalize();
 }
