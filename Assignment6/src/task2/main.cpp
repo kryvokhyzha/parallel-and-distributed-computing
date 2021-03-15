@@ -1,30 +1,30 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include "mpi.h"
-#define NRA 62
+#define NRA 500
 /* number of rows in matrix A */
-#define NCA 15
+#define NCA 500
 /* number of columns in matrix A */
-#define NCB 7
+#define NCB 500
 /* number of columns in matrix B */
 #define MASTER 0
 /* taskid of first task */
-#define FROM_MASTER 1 /* setting a message type */
-#define FROM_WORKER 2 /* setting a message type */
+#define FROM_MASTER 1  /* setting a message type */
+#define FROM_WORKER 10 /* setting a message type */
 
 int main(int argc, char *argv[]) {
   int numtasks, taskid, numworkers, source, dest, rows,
       /* rows of matrix A sent to each worker */
       averow, extra, offset, i, j, k;
 
-  double a[NRA][NCA], /* matrix A to be multiplied */
-      b[NCA][NCB],    /* matrix B to be multiplied */
-      c[NRA][NCB];    /* result matrix C */
+  double a[NRA][NCA]; /* matrix A to be multiplied */
+  double b[NCA][NCB]; /* matrix B to be multiplied */
+  double c[NRA][NCB]; /* result matrix C */
+
+  // std::vector<std::vector<double>> v {{1,2,3}};
 
   MPI_Init(&argc, &argv);
-
-  double t1 = MPI_Wtime();
 
   MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
   MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
@@ -38,12 +38,14 @@ int main(int argc, char *argv[]) {
   numworkers = numtasks - 1;
 
   if (taskid == MASTER) {
-    printf("mpi_mm has started with %d tasks.\n", numtasks);
+    printf("mpi_mm has started with %d tasks (task 2).\n", numtasks);
 
     for (i = 0; i < NRA; i++)
       for (j = 0; j < NCA; j++) a[i][j] = 10;
     for (i = 0; i < NCA; i++)
       for (j = 0; j < NCB; j++) b[i][j] = 10;
+
+    double t1 = MPI_Wtime();
 
     averow = NRA / numworkers;
     extra = NRA % numworkers;
@@ -57,12 +59,12 @@ int main(int argc, char *argv[]) {
       printf("Sending %d rows to task %d offset=%d\n", rows, dest, offset);
       MPI_Isend(&offset, 1, MPI_INT, dest, FROM_MASTER, MPI_COMM_WORLD,
                 &send_req[(dest - 1) * 4]);
-      MPI_Isend(&rows, 1, MPI_INT, dest, FROM_MASTER, MPI_COMM_WORLD,
+      MPI_Isend(&rows, 1, MPI_INT, dest, FROM_MASTER + 1, MPI_COMM_WORLD,
                 &send_req[(dest - 1) * 4 + 1]);
-      MPI_Isend(&a[offset][0], rows * NCA, MPI_DOUBLE, dest, FROM_MASTER,
+      MPI_Isend(&a[offset][0], rows * NCA, MPI_DOUBLE, dest, FROM_MASTER + 2,
                 MPI_COMM_WORLD, &send_req[(dest - 1) * 4 + 2]);
-      MPI_Isend(&b, NCA * NCB, MPI_DOUBLE, dest, FROM_MASTER, MPI_COMM_WORLD,
-                &send_req[(dest - 1) * 4 + 3]);
+      MPI_Isend(&b, NCA * NCB, MPI_DOUBLE, dest, FROM_MASTER + 3,
+                MPI_COMM_WORLD, &send_req[(dest - 1) * 4 + 3]);
 
       offset = offset + rows;
     }
@@ -73,14 +75,14 @@ int main(int argc, char *argv[]) {
     for (source = 1; source <= numworkers; source++) {
       MPI_Irecv(&offset, 1, MPI_INT, source, FROM_WORKER, MPI_COMM_WORLD,
                 &recv_req[(source - 1) * 3]);
-      MPI_Irecv(&rows, 1, MPI_INT, source, FROM_WORKER, MPI_COMM_WORLD,
+      MPI_Irecv(&rows, 1, MPI_INT, source, FROM_WORKER + 1, MPI_COMM_WORLD,
                 &recv_req[(source - 1) * 3 + 1]);
 
       MPI_Wait(&recv_req[(source - 1) * 3], &recv_status[(source - 1) * 3]);
       MPI_Wait(&recv_req[(source - 1) * 3 + 1],
                &recv_status[(source - 1) * 3 + 1]);
 
-      MPI_Irecv(&c[offset][0], rows * NCB, MPI_DOUBLE, source, FROM_WORKER,
+      MPI_Irecv(&c[offset][0], rows * NCB, MPI_DOUBLE, source, FROM_WORKER + 2,
                 MPI_COMM_WORLD, &recv_req[(source - 1) * 3 + 2]);
 
       MPI_Wait(&recv_req[(source - 1) * 3 + 2],
@@ -89,7 +91,7 @@ int main(int argc, char *argv[]) {
     }
 
     /* Print results */
-    printf("****\n");
+    /*printf("****\n");
     printf("Result Matrix:\n");
 
     for (i = 0; i < NRA; i++) {
@@ -98,7 +100,10 @@ int main(int argc, char *argv[]) {
     }
 
     printf("\n********\n");
-    printf("Done.\n");
+    printf("Done.\n");*/
+
+    t1 = MPI_Wtime() - t1;
+    printf("\nExecution time: %.2f\n", t1);
   }
   /******** worker task *****************/
   else { /* if (taskid > MASTER) */
@@ -107,15 +112,15 @@ int main(int argc, char *argv[]) {
 
     MPI_Irecv(&offset, 1, MPI_INT, MASTER, FROM_MASTER, MPI_COMM_WORLD,
               &recv_req[0]);
-    MPI_Irecv(&rows, 1, MPI_INT, MASTER, FROM_MASTER, MPI_COMM_WORLD,
+    MPI_Irecv(&rows, 1, MPI_INT, MASTER, FROM_MASTER + 1, MPI_COMM_WORLD,
               &recv_req[1]);
     MPI_Wait(&recv_req[0], &recv_status[0]);
     MPI_Wait(&recv_req[1], &recv_status[1]);
 
-    MPI_Irecv(&a, rows * NCA, MPI_DOUBLE, MASTER, FROM_MASTER, MPI_COMM_WORLD,
-              &recv_req[2]);
-    MPI_Irecv(&b, NCA * NCB, MPI_DOUBLE, MASTER, FROM_MASTER, MPI_COMM_WORLD,
-              &recv_req[3]);
+    MPI_Irecv(&a, rows * NCA, MPI_DOUBLE, MASTER, FROM_MASTER + 2,
+              MPI_COMM_WORLD, &recv_req[2]);
+    MPI_Irecv(&b, NCA * NCB, MPI_DOUBLE, MASTER, FROM_MASTER + 3,
+              MPI_COMM_WORLD, &recv_req[3]);
 
     MPI_Wait(&recv_req[2], &recv_status[2]);
     MPI_Wait(&recv_req[3], &recv_status[3]);
@@ -128,24 +133,15 @@ int main(int argc, char *argv[]) {
 
     MPI_Isend(&offset, 1, MPI_INT, MASTER, FROM_WORKER, MPI_COMM_WORLD,
               &send_req[0]);
-    MPI_Isend(&rows, 1, MPI_INT, MASTER, FROM_WORKER, MPI_COMM_WORLD,
+    MPI_Isend(&rows, 1, MPI_INT, MASTER, FROM_WORKER + 1, MPI_COMM_WORLD,
               &send_req[1]);
     MPI_Wait(&send_req[0], &send_status[0]);
     MPI_Wait(&send_req[1], &send_status[1]);
 
-    MPI_Isend(&c, rows * NCB, MPI_DOUBLE, MASTER, FROM_WORKER, MPI_COMM_WORLD,
-              &send_req[2]);
+    MPI_Isend(&c, rows * NCB, MPI_DOUBLE, MASTER, FROM_WORKER + 2,
+              MPI_COMM_WORLD, &send_req[2]);
 
     MPI_Wait(&send_req[2], &send_status[2]);
-  }
-
-  t1 = MPI_Wtime() - t1;
-
-  double totalTime;
-  MPI_Reduce(&t1, &totalTime, 1, MPI_DOUBLE, MPI_MAX, MASTER, MPI_COMM_WORLD);
-
-  if (taskid == MASTER) {
-    printf("\nExecution time: %.2f\n", t1);
   }
 
   MPI_Finalize();
