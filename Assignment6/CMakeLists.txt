@@ -7,4 +7,4 @@ include_directories(/usr/local/openmpi/include/mpi/)
 set(CMAKE_C_COMPILER "/usr/local/openmpi/bin/mpicc")
 set(CMAKE_CXX_COMPILER "/usr/local/openmpi/bin/mpic++")
 
-add_executable(Assignment6 src/main.cpp)
+add_executable(Assignment6 src/task2/main.cpp)
