@@ -2,27 +2,42 @@
 #include <cstdlib>
 
 #include "mpi.h"
-#define NRA 500
+#define NRA 1000
 /* number of rows in matrix A */
-#define NCA 500
+#define NCA 1000
 /* number of columns in matrix A */
-#define NCB 500
+#define NCB 1000
 /* number of columns in matrix B */
 #define MASTER 0
 /* taskid of first task */
 #define FROM_MASTER 1  /* setting a message type */
 #define FROM_WORKER 10 /* setting a message type */
 
+double **alloc_2d(int rows, int cols) {
+  /*allocate a continuous chunk*/
+  double *mem = (double *)malloc(rows * cols * sizeof(double));
+  double **A = (double **)malloc(rows * sizeof(double *));
+
+  A[0] = mem;
+  /*manually split it into rows*/
+  for (int i = 1; i < rows; i++) A[i] = A[i - 1] + cols;
+
+  return A;
+}
+
+void free_memory(double **arr) {
+  free(arr[0]);
+  free(arr);
+}
+
 int main(int argc, char *argv[]) {
   int numtasks, taskid, numworkers, source, dest, rows,
       /* rows of matrix A sent to each worker */
       averow, extra, offset, i, j, k;
 
-  double a[NRA][NCA]; /* matrix A to be multiplied */
-  double b[NCA][NCB]; /* matrix B to be multiplied */
-  double c[NRA][NCB]; /* result matrix C */
-
-  // std::vector<std::vector<double>> v {{1,2,3}};
+  double **a = alloc_2d(NRA, NCA); /* matrix A to be multiplied */
+  double **b = alloc_2d(NCA, NCB); /* matrix B to be multiplied */
+  double **c = alloc_2d(NRA, NCB); /* result matrix C */
 
   MPI_Init(&argc, &argv);
 
@@ -63,9 +78,9 @@ int main(int argc, char *argv[]) {
                 &send_req[(dest - 1) * 4]);
       MPI_Isend(&rows, 1, MPI_INT, dest, FROM_MASTER + 1, MPI_COMM_WORLD,
                 &send_req[(dest - 1) * 4 + 1]);
-      MPI_Isend(&a[offset][0], rows * NCA, MPI_DOUBLE, dest, FROM_MASTER + 2,
+      MPI_Isend(a[offset], rows * NCA, MPI_DOUBLE, dest, FROM_MASTER + 2,
                 MPI_COMM_WORLD, &send_req[(dest - 1) * 4 + 2]);
-      MPI_Isend(&b, NCA * NCB, MPI_DOUBLE, dest, FROM_MASTER + 3,
+      MPI_Isend(b[0], NCA * NCB, MPI_DOUBLE, dest, FROM_MASTER + 3,
                 MPI_COMM_WORLD, &send_req[(dest - 1) * 4 + 3]);
 
       offset = offset + rows;
@@ -87,7 +102,7 @@ int main(int argc, char *argv[]) {
     MPI_Waitall(numworkers * 2, &recv_req1[0], &recv_status1[0]);
 
     for (source = 1; source <= numworkers; source++) {
-      MPI_Irecv(&c[offsets_arr[source - 1]][0], rows_arr[source - 1] * NCB,
+      MPI_Irecv(c[offsets_arr[source - 1]], rows_arr[source - 1] * NCB,
                 MPI_DOUBLE, source, FROM_WORKER + 2, MPI_COMM_WORLD,
                 &recv_req2[source - 1]);
       printf("Received results from task %d\n", source);
@@ -120,7 +135,7 @@ int main(int argc, char *argv[]) {
               &recv_req[0]);
     MPI_Irecv(&rows, 1, MPI_INT, MASTER, FROM_MASTER + 1, MPI_COMM_WORLD,
               &recv_req[1]);
-    MPI_Irecv(&b, NCA * NCB, MPI_DOUBLE, MASTER, FROM_MASTER + 3,
+    MPI_Irecv(b[0], NCA * NCB, MPI_DOUBLE, MASTER, FROM_MASTER + 3,
               MPI_COMM_WORLD, &recv_req[3]);
 
     MPI_Wait(&recv_req[0], &recv_status[0]);
@@ -131,7 +146,7 @@ int main(int argc, char *argv[]) {
     MPI_Isend(&rows, 1, MPI_INT, MASTER, FROM_WORKER + 1, MPI_COMM_WORLD,
               &send_req[1]);
 
-    MPI_Irecv(&a, rows * NCA, MPI_DOUBLE, MASTER, FROM_MASTER + 2,
+    MPI_Irecv(a[0], rows * NCA, MPI_DOUBLE, MASTER, FROM_MASTER + 2,
               MPI_COMM_WORLD, &recv_req[2]);
 
     MPI_Wait(&recv_req[2], &recv_status[2]);
@@ -143,9 +158,16 @@ int main(int argc, char *argv[]) {
         for (j = 0; j < NCA; j++) c[i][k] = c[i][k] + a[i][j] * b[j][k];
       }
 
-    MPI_Isend(&c, rows * NCB, MPI_DOUBLE, MASTER, FROM_WORKER + 2,
+    MPI_Isend(c[0], rows * NCB, MPI_DOUBLE, MASTER, FROM_WORKER + 2,
               MPI_COMM_WORLD, &send_req[2]);
+
+    MPI_Status st;
+    MPI_Wait(&send_req[2], &st);
   }
+
+  free_memory(a);
+  free_memory(b);
+  free_memory(c);
 
   MPI_Finalize();
 }
